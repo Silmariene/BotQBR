@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/Silmariene/BotQBR/issues"
   },
-  "homepage": "https://github.com/Silmariene/BotQBR#readme"
+  "homepage": "https://github.com/Silmariene/BotQBR#readme",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "dotenv": "^6.0.0"
+  }
 }

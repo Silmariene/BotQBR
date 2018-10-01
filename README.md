@@ -9,11 +9,14 @@ Installation
 
 ```bash
 npm install
+npm install --global nodemon
 ```
 
-Running
+Copy `.env.dist` to `.env` and fill the confidential settings.
+
+Running (development mode)
 ---
 
 ```bash
-npm start
+nodemon
 ```
