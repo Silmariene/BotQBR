@@ -48,10 +48,33 @@ const commands = {
             db.set('announce', args.join(' ')).write();
             msg.channel.send("Announce updated.");
         }
+    },
+    '/apply': (msg) => {
+        // check if the user already exists in database
+        let [user] = db.get('applications').filter({id: msg.author.id}).take(1).value();
+
+        if (!user) {
+            user = {
+                id: msg.author.id,
+                token: [...Array(32)].map(i=>(~~(Math.random()*36)).toString(36)).join(''),
+                status: 'empty'
+            };
+            db.get('applications').push(user).write();
+        }
+
+        msg.member.createDM().then(channel => {
+            channel.send(`WIP: Here's your application form: ${user.token}`)
+        })
     }
 };
 
 client.on('message', msg => {
+    if (msg.author.bot)
+        return; // We don't deal with other bots
+    if (msg.channel.type !== 'text') {
+        msg.reply(`I don't support channels of type _${msg.channel.type}_.`);
+        return; // direct messages and the like aren't supported (yet)
+    }
     const [cmd, ...args] = msg.toString().split(" ");
     if (cmd in commands) {
         commands[cmd](msg, ...args);
