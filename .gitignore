@@ -65,3 +65,6 @@ typings/
 
 # Environment file
 .env
+
+# Database
+db.json
