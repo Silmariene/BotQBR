@@ -36,14 +36,6 @@ const commands = {
     '/echo': (msg, ...args) => {
         msg.channel.send(args.join(' '))
     },
-    '/example-admin': (msg) => {
-        const adminRole = msg.guild.roles.find(r => r.name === "admin");
-        if (msg.member.roles.has(adminRole.id)) {
-            msg.reply("hey, you're an admin!");
-        } else {
-            msg.reply("hmm... looks like you're not an admin.");
-        }
-    },
     '/announce': (msg, ...args) => {
         const adminRole = msg.guild.roles.find(r => r.name === "admin");
         if (args.length === 0) {
@@ -74,7 +66,57 @@ const commands = {
         msg.member.createDM().then(channel => {
             channel.send(`WIP: Here's your application form: ${process.env.PUBLIC_ENDPOINT}/apply?token=${user.token}`)
         })
-    }
+    },
+    '/accept': (msg, ...args) => {
+        const adminRole = msg.guild.roles.find(r => r.name === "admin");
+        if (!msg.member.roles.has(adminRole.id))
+            return;
+
+        if (args.length === 0) {
+            return msg.channel.send("Usage: /accept @username");
+        }
+
+        const user = msg.mentions.users.first();
+        if (!user) {
+            return msg.channel.send("This user doesn't exists.");
+        }
+        const member = msg.guild.member(user);
+        if (!member) {
+            return msg.channel.send("This user is not on this Discord server.");
+        }
+        let applicationEntry = db.get('applications').filter({tag: member.user.tag}).last();
+        applicationEntry.assign({
+            status: 'accepted',
+            acceptingDate: Date.now(),
+        }).write();
+        msg.channel.send(`${member.user.tag}, welcome to the guild!`);
+        member.user.send("You've been accepted in the guild, congratulations!");
+    },
+    '/deny': (msg, ...args) => {
+        const adminRole = msg.guild.roles.find(r => r.name === "admin");
+        if (!msg.member.roles.has(adminRole.id))
+            return;
+
+        if (args.length === 0) {
+            return msg.channel.send("Usage: /deny @username");
+        }
+
+        const user = msg.mentions.users.first();
+        if (!user) {
+            return msg.channel.send("This user doesn't exists.");
+        }
+        const member = msg.guild.member(user);
+        if (!member) {
+            return msg.channel.send("This user is not on this Discord server.");
+        }
+        let applicationEntry = db.get('applications').filter({tag: member.user.tag}).last();
+        applicationEntry.assign({
+            status: 'refused',
+            acceptingDate: Date.now(),
+        }).write();
+        msg.channel.send(`${member.user.tag}, welcome to the guild!`);
+        member.user.send("Sorry, but your application has been rejected.");
+    },
 };
 
 client.on('message', msg => {
@@ -127,7 +169,7 @@ app.get('/apply/validate', function (req, res) {
         // we already accepted this application
         return res.send("Congratz ;)");
     }
-    if (application.status === 'accepted') {
+    if (application.status === 'refused') {
         // we already accepted this application
         return res.send("Sorry, but your application have been refused.");
     }
