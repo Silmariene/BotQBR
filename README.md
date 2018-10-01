@@ -1,4 +1,4 @@
-BotQBR 🤖
+🤖 BotQBR
 ===
 A Discord bot for the guild _Quick Before Reset_.
 
