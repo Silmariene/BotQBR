@@ -20,6 +20,14 @@ const commands = {
     '/echo': (msg, ...args) => {
         msg.channel.send(args.join(' '))
     },
+    '/example-admin': (msg) => {
+        const adminRole = msg.guild.roles.find("name", "admin");
+        if (msg.member.roles.has(adminRole.id)) {
+            msg.reply("hey, you're an admin!");
+        } else {
+            msg.reply("hmm... looks like you're not an admin.");
+        }
+    }
 };
 
 client.on('message', msg => {
